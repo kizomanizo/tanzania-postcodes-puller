@@ -20,21 +20,43 @@ class AppServer {
   }
 
   configureRoutes() {
-    this.app.get("/", (req, res, next) => {
+    this.app.get("/api/v1/zones", async (_req, res, next) => {
       try {
-        res.responseHandler.sendResponse(200, true, "Root path reached!");
+        const zones = await tcraService.getZones();
+        res.responseHandler.sendResponse(200, true, zones);
       } catch (error) {
-        next(error);
+        console.log(error);
+        throw error;
       }
     });
 
-    this.app.get("/api/v1/regions", async (req, res, next) => {
+    this.app.get("/api/v1/regions", async (_req, res, next) => {
       try {
         const regions = await tcraService.getRegions();
         res.responseHandler.sendResponse(200, true, regions);
       } catch (error) {
         console.log(error);
-        next(error);
+        throw error;
+      }
+    });
+
+    this.app.get("/api/v1/districts", async (_req, res, next) => {
+      try {
+        const districts = await tcraService.getDistricts();
+        res.responseHandler.sendResponse(200, true, districts);
+      } catch (error) {
+        console.log(error);
+        throw error;
+      }
+    });
+
+    this.app.get("/api/v1/wards", async (_req, res, next) => {
+      try {
+        const wards = await tcraService.getWards();
+        res.responseHandler.sendResponse(200, true, wards);
+      } catch (error) {
+        console.log(error);
+        throw error;
       }
     });
   }
