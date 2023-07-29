@@ -1,4 +1,4 @@
-import ResponseHandler from "./responseHandler.js";
+// errorHandler.js
 
 class ErrorHandler {
   constructor(error, req, res, next) {
@@ -10,7 +10,6 @@ class ErrorHandler {
 
   handle() {
     const { statusCode, message } = this.getErrorDetails();
-
     this.res.status(statusCode).json({
       status: statusCode,
       success: false,
@@ -27,16 +26,7 @@ class ErrorHandler {
       message = "Invalid JSON format in the request body";
     }
 
-    const responseStatus = statusCode || 500;
-    const responseSuccess = false;
-    const responsePayload = message || null;
-
-    const responseHandler = new ResponseHandler(this.req, this.res);
-    responseHandler.sendResponse(
-      responseStatus,
-      responseSuccess,
-      responsePayload
-    );
+    return { statusCode, message };
   }
 }
 

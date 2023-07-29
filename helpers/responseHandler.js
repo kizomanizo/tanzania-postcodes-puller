@@ -1,12 +1,14 @@
+// responseHandler.js
+
 class ResponseHandler {
   constructor(req, res) {
     this.req = req;
     this.res = res;
   }
 
-  sendResponse(status, success, payload) {
-    const responseStatus = status || 200;
-    const responseSuccess = success;
+  sendResponse(statusCode, success, payload) {
+    const responseStatus = statusCode || 200;
+    const responseSuccess = success || false;
     const responsePayload = payload || null;
 
     this.res.status(responseStatus).json({
