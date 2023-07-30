@@ -1,4 +1,8 @@
-// index.js
+/**
+ * @description This is the main entry point for the TCRA API puller backend.
+ * @author Kizito S.M.
+ * @version 1.0.0. MMXXIII
+ */
 
 import express from "express";
 import ErrorHandler from "./helpers/errorHandler.js";
@@ -7,11 +11,20 @@ import tcraService from "./services/tcraService.js";
 import "dotenv/config";
 
 class AppServer {
-  constructor(port = 3000) {
+  /**
+   * Creates an instance of AppServer.
+   * @param {number} port - The port number on which the server will listen. Default is 3000.
+   */
+  constructor(port = process.env.PORT || 3000) {
     this.app = express();
     this.port = port;
   }
 
+  /**
+   * Configures the middleware for the Express app.
+   * Disables "x-powered-by" header, parses incoming JSON, and URL-encoded requests.
+   * Attaches custom response handler middleware.
+   */
   configureMiddleware() {
     this.app.disable("x-powered-by");
     this.app.use(express.json());
@@ -19,6 +32,10 @@ class AppServer {
     this.app.use(attachResponseHandler);
   }
 
+  /**
+   * Configures routes for different API endpoints.
+   * Defines handlers for API endpoints to fetch zones, regions, districts, and wards.
+   */
   configureRoutes() {
     this.app.get("/api/v1/zones", async (_req, res, next) => {
       try {
@@ -61,6 +78,10 @@ class AppServer {
     });
   }
 
+  /**
+   * Configures error handling middleware.
+   * Handles errors using the custom ErrorHandler class.
+   */
   configureErrorHandling() {
     this.app.use((error, req, res, next) => {
       const errorHandler = new ErrorHandler(error, req, res, next);
@@ -68,6 +89,10 @@ class AppServer {
     });
   }
 
+  /**
+   * Starts the Express server by configuring middleware, routes, and error handling.
+   * The server listens on the specified port and logs a message once it starts.
+   */
   start() {
     this.configureMiddleware();
     this.configureRoutes();
@@ -81,7 +106,5 @@ class AppServer {
 
 export default AppServer;
 
-const port = process.env.PORT || 3000;
-
-const appServer = new AppServer(port);
+const appServer = new AppServer();
 appServer.start();

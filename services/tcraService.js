@@ -1,3 +1,9 @@
+/**
+ * @description TCRA Service - Responsible for fetching data from the TCRA API.
+ * @author Kizito S.M.
+ * @version 1.0.0. MMXXIII
+ */
+
 import axios from "axios";
 import https from "https";
 import "dotenv/config";
@@ -11,14 +17,21 @@ class TcraService {
     });
   }
 
-  // Get unique zones
+  /**
+   * @description Fetches unique zones from the TCRA API.
+   * @returns {Promise<Object[]>} An array of unique zone objects containing zoneId and zoneName.
+   * @throws {Error} If there is an error while fetching the data.
+   */
   async getZones() {
     try {
+      // Fetch all regions from the API
       const regionsResponse = await this.instance.get(process.env.REGIONS_ENDPOINT);
       const regions = regionsResponse.data;
 
-      const zonesMap = new Map(); // Use Map to store unique zones
+      // Use a Map to store unique zones based on zoneId
+      const zonesMap = new Map();
 
+      // Iterate through regions to extract unique zones
       for (const region of regions) {
         const zoneId = region.zoneId;
         const zoneName = region.zone.name;
@@ -38,33 +51,48 @@ class TcraService {
     }
   }
 
-  //Get all regions
+  /**
+   * Fetches all regions from the TCRA API.
+   * @returns {Promise<Object[]>} An array of region objects containing region details.
+   * @throws {Error} If there is an error while fetching the data.
+   */
   async getRegions() {
     try {
-      const regions = await this.instance.get(process.env.REGIONS_ENDPOINT);
+      // Fetch all regions from the API
+      const regionsResponse = await this.instance.get(process.env.REGIONS_ENDPOINT);
+      const regions = regionsResponse.data;
       const payload = [];
+
+      // Transform region data and store in the payload array
       regions.data.forEach((region) => {
-        var regions = {};
-        regions.id = region.id;
-        regions.name = region.name;
-        regions.level = region.locationLevel;
-        regions.location = region.locationode;
-        regions.postcode = region.postcodeServiceId;
-        regions.zone = region.zone.id;
-        payload.push(regions);
+        var regionObj = {};
+        regionObj.id = region.id;
+        regionObj.name = region.name;
+        regionObj.level = region.locationLevel;
+        regionObj.location = region.locationCode;
+        regionObj.postcode = region.postcodeServiceId;
+        regionObj.zone = region.zone.id;
+        payload.push(regionObj);
       });
+
       return payload;
     } catch (error) {
       throw error;
     }
   }
 
-  // Get all districts
+  /**
+   * @description Fetches all districts from the TCRA API.
+   * @returns {Promise<Object[]>} An array of district objects containing district details.
+   * @throws {Error} If there is an error while fetching the data.
+   */
   async getDistricts() {
     try {
+      // Fetch all regions from the API
       const regionsResponse = await this.instance.get(process.env.REGIONS_ENDPOINT);
       const regions = regionsResponse.data;
 
+      // Fetch districts for each region concurrently and flatten the result
       const allDistricts = await Promise.all(
         regions.map(async (region) => {
           const districtsResponse = await this.instance.get(
@@ -92,14 +120,20 @@ class TcraService {
     }
   }
 
-  // Get all regions with districts and wards
+  /**
+   * @description Fetches all wards with their respective districts and regions from the TCRA API.
+   * @returns {Promise<Object[]>} An array of ward objects containing ward details.
+   * @throws {Error} If there is an error while fetching the data.
+   */
   async getWards() {
     try {
+      // Fetch all regions from the API
       const regionsResponse = await this.instance.get(process.env.REGIONS_ENDPOINT);
       const regions = regionsResponse.data;
 
       const allWards = [];
 
+      // Iterate through each region, fetch districts, and fetch wards for each district
       for (const region of regions) {
         const districtsResponse = await this.instance.get(
           process.env.DISTRICTS_ENDPOINT + region.id
