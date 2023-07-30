@@ -1,7 +1,10 @@
 /**
  * @description This is the main entry point for the TCRA API puller backend.
+ * @version 1.0.0 MMXXIII
+ * @description This is the main entry point for the TCRA API puller backend.
+ * It sets up the Express app, configures middleware, routes, and error handling,
+ * and starts the server to listen on the specified port.
  * @author Kizito S.M.
- * @version 1.0.0. MMXXIII
  */
 
 import express from "express";
@@ -14,6 +17,7 @@ class AppServer {
   /**
    * Creates an instance of AppServer.
    * @param {number} port - The port number on which the server will listen. Default is 3000.
+   * @description Creates an instance of the AppServer class with the specified port number (default is 3000).
    */
   constructor(port = process.env.PORT || 3000) {
     this.app = express();
@@ -24,6 +28,8 @@ class AppServer {
    * Configures the middleware for the Express app.
    * Disables "x-powered-by" header, parses incoming JSON, and URL-encoded requests.
    * Attaches custom response handler middleware.
+   * @description Configures the middleware for the Express app by disabling the "x-powered-by" header,
+   * parsing incoming JSON, and URL-encoded requests. It also attaches the custom response handler middleware.
    */
   configureMiddleware() {
     this.app.disable("x-powered-by");
@@ -35,6 +41,8 @@ class AppServer {
   /**
    * Configures routes for different API endpoints.
    * Defines handlers for API endpoints to fetch zones, regions, districts, and wards.
+   * @description Configures routes for different API endpoints and defines handlers for each endpoint
+   * to fetch zones, regions, districts, and wards from the tcraService.
    */
   configureRoutes() {
     this.app.get("/api/v1/zones", async (_req, res, next) => {
@@ -81,6 +89,7 @@ class AppServer {
   /**
    * Configures error handling middleware.
    * Handles errors using the custom ErrorHandler class.
+   * @description Configures error handling middleware to handle errors using the custom ErrorHandler class.
    */
   configureErrorHandling() {
     this.app.use((error, req, res, next) => {
@@ -92,6 +101,8 @@ class AppServer {
   /**
    * Starts the Express server by configuring middleware, routes, and error handling.
    * The server listens on the specified port and logs a message once it starts.
+   * @description Starts the Express server by configuring middleware, routes, and error handling,
+   * and then listens on the specified port. Once the server starts, it logs an information message.
    */
   start() {
     this.configureMiddleware();
