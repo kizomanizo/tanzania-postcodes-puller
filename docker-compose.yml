@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  postcodes-puller-backend:
+    depends_on:
+      - postcodes-puller-mongo
+    container_name: postcodes-puller-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: ./.env
+    environment:
+      - SERVER_PORT=$PORT
+      - NODE_ENV=$NODE_ENV
+      - DB_USERNAME=$DB_USERNAME
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_HOSTNAME=$DOCKER_HOSTNAME
+      - DB_PORT=$DB_PORT
+      - DB_NAME=$DB_NAME
+    ports:
+      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+      - $DEBUG_LOCAL_PORT:$DEBUG_DOCKER_PORT
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    networks:
+      - testerNetwork
+    command: 'npm run start:dev'
+    stdin_open: true
+    tty: true
+
+  postcodes-puller-mongo:
+    image: mongo
+    container_name: postcodes-puller-mongo
+    restart: unless-stopped
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=$DB_PASSWORD
+    volumes:
+      - dbdata:/data/db
+    networks:
+      - testerNetwork
+
+networks:
+  testerNetwork:
+    driver: bridge
+
+volumes:
+  dbdata:
+  node_modules:

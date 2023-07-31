@@ -12,7 +12,8 @@ import ErrorHandler from "./helpers/errorHandler.js";
 import { attachResponseHandler } from "./middlewares/customMiddleware.js";
 import tcraService from "./services/tcraService.js";
 import "dotenv/config";
-import saveData from "./services/createService.js";
+import CreateService from "./services/createService.js";
+const createService = new CreateService();
 import mongoose from "mongoose";
 
 class AppServer {
@@ -41,15 +42,18 @@ class AppServer {
   }
 
   async configureMongodb() {
-    // MongoDB connection URL (change this to your MongoDB URL)
-    const dbURL = process.env.MONGODB_URL || "mongodb://localhost:27017/tcra_database";
-    // Connect to MongoDB
-    await mongoose.connect(dbURL, {
+    const options = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      useCreateIndex: true,
-    });
-    console.log("INFO: Connected to MongoDB successfully.");
+      maxPoolSize: 50,
+      wtimeoutMS: 5000,
+    };
+
+    const mongoUrl = process.env.DATABASE_URL;
+    await mongoose.connect(mongoUrl, options);
+    const db = mongoose.connection;
+    db.on("error", (error) => console.error(error));
+    db.once("open", () => console.log("**** MongoDB connected successfully ****"));
   }
 
   /**
@@ -99,9 +103,9 @@ class AppServer {
       }
     });
 
-    this.app.post("/api/v1/scrape", async (_req, res, next) => {
+    this.app.get("/api/v1/scrape", async (_req, res, next) => {
       try {
-        const scrape = await saveData.saveData();
+        const scrape = await createService.saveData();
         res.responseHandler.sendResponse(200, true, scrape);
       } catch (error) {
         throw error;

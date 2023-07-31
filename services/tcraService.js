@@ -64,7 +64,7 @@ class TcraService {
       const payload = [];
 
       // Transform region data and store in the payload array
-      regions.data.forEach((region) => {
+      regions.forEach((region) => {
         var regionObj = {};
         regionObj.id = region.id;
         regionObj.name = region.name;
