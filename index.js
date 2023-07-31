@@ -12,6 +12,8 @@ import ErrorHandler from "./helpers/errorHandler.js";
 import { attachResponseHandler } from "./middlewares/customMiddleware.js";
 import tcraService from "./services/tcraService.js";
 import "dotenv/config";
+import saveData from "./services/createService.js";
+import mongoose from "mongoose";
 
 class AppServer {
   /**
@@ -36,6 +38,18 @@ class AppServer {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
     this.app.use(attachResponseHandler);
+  }
+
+  async configureMongodb() {
+    // MongoDB connection URL (change this to your MongoDB URL)
+    const dbURL = process.env.MONGODB_URL || "mongodb://localhost:27017/tcra_database";
+    // Connect to MongoDB
+    await mongoose.connect(dbURL, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useCreateIndex: true,
+    });
+    console.log("INFO: Connected to MongoDB successfully.");
   }
 
   /**
@@ -84,6 +98,15 @@ class AppServer {
         throw error;
       }
     });
+
+    this.app.post("/api/v1/scrape", async (_req, res, next) => {
+      try {
+        const scrape = await saveData.saveData();
+        res.responseHandler.sendResponse(200, true, scrape);
+      } catch (error) {
+        throw error;
+      }
+    });
   }
 
   /**
@@ -105,6 +128,7 @@ class AppServer {
    * and then listens on the specified port. Once the server starts, it logs an information message.
    */
   start() {
+    this.configureMongodb();
     this.configureMiddleware();
     this.configureRoutes();
     this.configureErrorHandling();
